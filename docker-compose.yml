@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  opensips:
+    image: opensips:3.2.9
+    container_name: my_opensips
+    environment:
+      PUBLIC_IP: ${PUBLIC_IP}
+      PORT: ${PORT}
+      DOLLOR: ${DOLLOR:-'$'}
+    ports:
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+      - "8844:8844/tcp"
+    volumes:
+      - "./:/usr/local/etc/opensips/"
