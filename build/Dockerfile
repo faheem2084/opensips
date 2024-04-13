@@ -1,8 +1,10 @@
-FROM debian:bullseye-slim
+FROM debian:12-slim
 
 ENV OPENSIPS_VERSION=3.2.9
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install essential build tools and development libraries
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
         build-essential \
         cmake \
         bison \
@@ -32,22 +34,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         curl \
         vim \
         gettext \
-        ca-certificates && \
-    ln -sf /usr/bin/python3 /usr/bin/python && \
-    wget --no-check-certificate https://download.opensips.org/opensips-${OPENSIPS_VERSION}.tar.gz && \
-    tar -xzvf opensips-${OPENSIPS_VERSION}.tar.gz && \
-    cd opensips-${OPENSIPS_VERSION} && \
-    make all include_modules="db_mysql db_postgres proto_tls proto_wss tls_mgm cachedb_mongodb cachedb_redis httpd json xcap presence presence_xml dialplan" \
-    prefix="/usr/local/" && \
-    make install && \
-    ln -sf /usr/local/sbin/opensips /usr/sbin/opensips && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /usr/src/opensips*
+        ca-certificates
 
+# Create a symbolic link for Python
+RUN ln -sf /usr/bin/python3 /usr/bin/python
+
+# Copy necessary files
 COPY ./templates/ /templates
+
+# Download and compile OpenSIPS
+WORKDIR /usr/src/
+RUN wget --no-check-certificate https://download.opensips.org/opensips-${OPENSIPS_VERSION}.tar.gz && \
+    tar -xzvf opensips-${OPENSIPS_VERSION}.tar.gz && \
+    cd opensips-${OPENSIPS_VERSION} && cp /templates/Makefile.conf /usr/src/opensips-${OPENSIPS_VERSION}  &&  make all && \
+    make install && \
+    ln -sf /usr/local/sbin/opensips /usr/sbin/opensips
+
+# Cleanup to reduce Docker image size
+# RUN apt-get clean && \
+#     rm -rf /var/lib/apt/lists/* /usr/src/opensips*
+
 COPY ./opensips.sh /opensips.sh
 RUN chmod +x /opensips.sh
 
-EXPOSE 5060/udp 5060/tcp 8844/tcp
+# Expose ports
+EXPOSE 5060/udp 5060/tcp
+EXPOSE 8844/tcp
 
 ENTRYPOINT ["/opensips.sh"]

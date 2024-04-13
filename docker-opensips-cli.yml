@@ -1,0 +1,24 @@
+version: "3"
+ 
+services:
+  opensips-cli:
+    container_name: "opensips-cli"
+    image: opensips/opensips-cli:latest
+    network_mode: host
+    logging:
+      driver: "json-file"
+      options:
+        max-file: "10"
+        max-size: "200m"
+    restart: always
+    ulimits:
+      core: -1
+    privileged: true
+    stdin_open: true
+    tty: true
+    entrypoint: ["/run.sh", "-o", "communication_type=http"]
+    volumes:
+      - ./config:/config
+  # docker-compose up
+  # docker exec -it opensips-cli bash
+  # opensips-cli  -f /config/opensips-cli.cfg -o url=http://192.168.31.42:8888/mi  -x mi uptime
