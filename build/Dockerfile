@@ -51,8 +51,8 @@ RUN wget --no-check-certificate https://download.opensips.org/opensips-${OPENSIP
     ln -sf /usr/local/sbin/opensips /usr/sbin/opensips
 
 # Cleanup to reduce Docker image size
-# RUN apt-get clean && \
-#     rm -rf /var/lib/apt/lists/* /usr/src/opensips*
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /usr/src/opensips*
 
 COPY ./opensips.sh /opensips.sh
 RUN chmod +x /opensips.sh
