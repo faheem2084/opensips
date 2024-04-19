@@ -1,13 +1,22 @@
-version: '3'
-
 services:
   opensips:
     image: opensips:3.2.9
     container_name: my_opensips
-    network_mode: host
     environment:
       PUBLIC_IP: ${PUBLIC_IP}
       PORT: ${PORT}
       DOLLOR: ${DOLLOR:-'$'}
     volumes:
-      - "./:/usr/local/etc/opensips/"
+      - ./opensips.cfg:/usr/local/etc/opensips/opensips.cfg
+    networks:
+      voice_network:
+        ipv4_address: 10.0.0.21
+    ports:
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+networks:
+  voice_network:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.0.0.0/24"
