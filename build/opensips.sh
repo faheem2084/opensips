@@ -1,5 +1,12 @@
 #!/bin/sh
-echo "Welcome to OpenSIPS";
-envsubst < /templates/opensips.cfg.tpl > /usr/local/etc/opensips/opensips.cfg;
-/usr/local/sbin/opensips -M 8 -m 256 -FE -f /usr/local/etc/opensips/opensips.cfg "$@"
-exec "$@"
+set -e
+echo "Welcome to OpenSIPS"
+
+CFG=/usr/local/etc/opensips/opensips.cfg
+
+if [ ! -f "$CFG" ]; then
+    echo "ERROR: $CFG not found. Mount your opensips.cfg to $CFG." >&2
+    exit 1
+fi
+
+exec /usr/local/sbin/opensips -M 8 -m 256 -F -f "$CFG" "$@"
