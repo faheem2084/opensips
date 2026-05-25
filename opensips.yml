@@ -1,6 +1,6 @@
 services:
   opensips:
-    image: opensips:3.2.9
+    image: opensips:3.6.6
     container_name: my_opensips
     environment:
       PUBLIC_IP: ${PUBLIC_IP}
